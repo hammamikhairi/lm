@@ -50,24 +50,31 @@ func FileHead(filename string, isDir bool) IconCol {
 	return ICONS["404"]
 }
 
-func FormatHead(fileName string, isDir bool) string {
+func FormatHead(fileName string, isDir bool, executable bool) string {
 
 	head := FileHead(fileName, isDir)
+	asterisk := ""
 
-	return color.Sprintf("<fg=%s>%s  %s</>",
+	if executable && !isDir {
+		asterisk += "<fg=fb4934>*</>"
+	}
+
+	return color.Sprintf("<fg=%s>%s  %s</>%s",
 		head.Color,
 		head.Icon,
 		fileName,
+		asterisk,
 	)
 }
 
 func Format(info os.FileInfo) string {
 	modDate := strings.Split(info.ModTime().Format("02/01/2006 03:04 PM"), ".")[0]
+	mode := info.Mode().String()
 	return fmt.Sprintf("%s%s%s%s%s  %s",
-		info.Mode().String(), termGap,
+		mode, termGap,
 		modDate, termGap,
 		MemFmt(info.Size(), info.IsDir()),
-		FormatHead(info.Name(), info.IsDir()),
+		FormatHead(info.Name(), info.IsDir(), mode[3] == 'x'),
 	)
 }
 
